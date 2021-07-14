@@ -60,7 +60,7 @@ impl Sudoku {
         let cell_val = self.board[row][col];
 
         // Check row/col
-        for i in usize::from(NUM_MIN)..usize::from(NUM_MAX) {
+        for i in 0..usize::from(NUM_MAX) {
             // Row
             if i != col && self.board[row][i] == cell_val {
                 return false;
