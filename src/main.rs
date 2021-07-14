@@ -72,7 +72,6 @@ impl Default for Sudoku {
 fn main() {
     test_disp();
     test_possible();
-    println!("{}", MASK_FULL);
 }
 
 // Expected output:
