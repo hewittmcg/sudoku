@@ -31,7 +31,12 @@ impl Sudoku {
     fn display(&self) {
         for (i, row) in self.board.iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
-                print!("{} ", val);
+                if *val == NUM_UNSET {
+                    print!("- ");
+                } else {
+                    print!("{} ", val);
+                }
+
                 if PRINT_IDX.contains(&j) {
                     print!("{}", COL_DIVIDER);
                 }
@@ -119,7 +124,14 @@ impl Default for Sudoku {
 
 
 fn main() {
-    test_disp();
+    // let mut cur = Sudoku { .. Default::default() };
+    // for row in &mut cur.board {
+    //     *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // }
+
+    // cur.solve_brute_force();
+    // cur.display();
+    test_normal_disp();
 }
 
 // Expected output:
@@ -140,6 +152,24 @@ fn test_disp() {
     for row in &mut cur.board {
         *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     }
+    cur.display();
+}
+
+// Test outputting a general unsolved sudoku
+fn test_normal_disp() {
+    let cur = Sudoku {
+        board: [[5,3,0,0,7,0,0,0,0]
+        ,[6,0,0,1,9,5,0,0,0]
+        ,[0,9,8,0,0,0,0,6,0]
+        ,[8,0,0,0,6,0,0,0,3]
+        ,[4,0,0,8,0,3,0,0,1]
+        ,[7,0,0,0,2,0,0,0,6]
+        ,[0,6,0,0,0,0,2,8,0]
+        ,[0,0,0,4,1,9,0,0,5]
+        ,[0,0,0,0,8,0,0,7,9]],
+
+        ..Default::default()
+    };
     cur.display();
 }
 
