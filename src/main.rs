@@ -10,32 +10,19 @@ const PRINT_IDX: [usize; 2] = [2, 5];
 const ROW_DIVIDER: &str = "\n---------------------";
 const COL_DIVIDER: &str = "| ";
 
-// Indices 1-9 filled, 0 left empty for simplicity
-const MASK_FULL: u16 = 0x1FF << 1;
-
 // Cell values
 const NUM_UNSET: u8 = 0;
 const NUM_MIN: u8 = 1;
 const NUM_MAX: u8 = 9;
 
-const CELL_SET: bool = true;
-const CELL_UNSET: bool = false;
-
-// TODO: refactor these into a single array of cells
 pub struct Sudoku {
     // The board -- 0 = unsolved/unset
     board: [[u8; NUM_COLS]; NUM_ROWS],
-    
-    // Options available at each location (bitmask)
-    possibles: [[u16; NUM_COLS]; NUM_ROWS],
-
-    // Whether cell was set initially
-    set: [[bool; NUM_COLS]; NUM_ROWS],
 }
 
 impl Sudoku {
     // Display the sudoku
-    fn display(&self) {
+    pub fn display(&self) {
         for (i, row) in self.board.iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
                 if *val == NUM_UNSET {
@@ -53,18 +40,6 @@ impl Sudoku {
             }
             println!("");
         }
-    }
-
-    // Return a vector of the options at a location
-    fn get_possible(&self, row:usize, col:usize) -> Vec<u8> {
-        let val = self.possibles[row][col];
-        let mut ret = Vec::<u8>::new();
-        for i in NUM_MIN..NUM_MAX+1 {
-            if val & (1 << i) != 0 {
-                ret.push(i);
-            }
-        }
-        ret
     }
 
     // Check whether a value would be valid for an individual cell.
@@ -110,7 +85,7 @@ impl Sudoku {
     }
 
     // Verify whether the entire sudoku is valid.
-    fn verify(&self) -> bool {
+    pub fn verify(&self) -> bool {
         for i in 0..usize::from(NUM_MAX) {
             for j in 0..usize::from(NUM_MAX) {
                 if !self.verify_cell(i, j) {
@@ -135,7 +110,7 @@ impl Sudoku {
     }
 
     // Solve the sudoku using backtracking.
-    fn solve(&mut self) -> bool {
+    pub fn solve(&mut self) -> bool {
         let [row, col] = self.get_first_empty();
         if [row, col] == [usize::MAX; 2] {
             // None found, so the sudoku is solved
@@ -163,7 +138,6 @@ impl Sudoku {
         for (i, row) in board_set.iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
                 self.board[i][j] = *val;
-                self.set[i][j] = (*val != NUM_UNSET);
             }
         }
     }
@@ -173,19 +147,14 @@ impl Default for Sudoku {
     fn default() -> Sudoku {
         Sudoku {
             // Defaults to zeros (i.e. unsolved)
-            board: [[NUM_UNSET; NUM_COLS]; NUM_ROWS],
-
-            // All options possible
-            possibles: [[MASK_FULL; NUM_COLS]; NUM_ROWS],
-
-            // Unset
-            set: [[CELL_UNSET; NUM_COLS]; NUM_ROWS],          
+            board: [[NUM_UNSET; NUM_COLS]; NUM_ROWS],        
         }
     }
 }
 
 
 fn main() {
+    // Just for testing solving currently
     let mut cur = Sudoku { ..Default::default() };
     let board: [[u8; NUM_COLS]; NUM_ROWS] = 
     [[5,3,0,0,7,0,0,0,0]
@@ -204,57 +173,9 @@ fn main() {
     assert!(cur.verify());
 }
 
-// Expected output:
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-// ---------------------
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-// ---------------------
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-// 1 2 3 | 4 5 6 | 7 8 9
-fn test_disp() {
-    let mut cur = Sudoku { ..Default::default() };
-    // Populate all rows with 1-9
-    for row in &mut cur.board {
-        *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    }
-    cur.display();
-}
-
-// Test outputting a general unsolved sudoku
-fn test_normal_disp() {
-    let cur = Sudoku {
-        board: [[5,3,0,0,7,0,0,0,0]
-        ,[6,0,0,1,9,5,0,0,0]
-        ,[0,9,8,0,0,0,0,6,0]
-        ,[8,0,0,0,6,0,0,0,3]
-        ,[4,0,0,8,0,3,0,0,1]
-        ,[7,0,0,0,2,0,0,0,6]
-        ,[0,6,0,0,0,0,2,8,0]
-        ,[0,0,0,4,1,9,0,0,5]
-        ,[0,0,0,0,8,0,0,7,9]],
-
-        ..Default::default()
-    };
-    cur.display();
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    // Make sure get_possible returns all values by default
-    fn test_possible() {
-        let cur = Sudoku { ..Default::default() };
-        let possible = cur.get_possible(0, 0);
-        let expected:Vec<u8> = [1, 2, 3, 4, 5, 6, 7, 8, 9].to_vec();
-        assert_eq!(expected, possible);
-    }
 
     #[test]
     // Test verify_cell() to make sure it generally work sas expected
