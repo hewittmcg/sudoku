@@ -121,8 +121,41 @@ impl Sudoku {
         return true;
     }
 
+    // Get the indexes of the first set value.  Returns usize::MAX for both if not found.
+    fn get_first_empty(&self) -> [usize; 2] {
+        for i in 0..usize::from(NUM_MAX) {
+            for j in 0..usize::from(NUM_MAX) {
+                if self.board[i][j] == NUM_UNSET {
+                    return [i, j];
+                }
+            }
+        } 
+        
+        return [usize::MAX; 2];
+    }
+
+    // Solve the sudoku using backtracking.
     fn solve(&mut self) -> bool {
-        return true;
+        let [row, col] = self.get_first_empty();
+        if [row, col] == [usize::MAX; 2] {
+            // None found, so the sudoku is solved
+            return true;
+        }
+
+        for val in NUM_MIN..(NUM_MAX+1) {
+            if self.check_cell(row, col, val) {
+                // Cell value works, so try to continue solving with it
+                self.board[row][col] = val;
+
+                if self.solve() {
+                    return true;
+                }
+
+                // Couldn't solve, so backtrack
+                self.board[row][col] = NUM_UNSET;
+            }
+        }
+        return false;
     }
 
     // Set the entire board to the values passed in.
@@ -166,6 +199,9 @@ fn main() {
     ,[0,0,0,0,8,0,0,7,9]];
     cur.set_full(board);
     cur.display();
+    cur.solve();
+    cur.display();
+    assert!(cur.verify());
 }
 
 // Expected output:
