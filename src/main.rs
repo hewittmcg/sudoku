@@ -18,12 +18,19 @@ const NUM_UNSET: u8 = 0;
 const NUM_MIN: u8 = 1;
 const NUM_MAX: u8 = 9;
 
+const CELL_SET: bool = true;
+const CELL_UNSET: bool = false;
+
+// TODO: refactor these into a single array of cells
 pub struct Sudoku {
     // The board -- 0 = unsolved/unset
     board: [[u8; NUM_COLS]; NUM_ROWS],
     
     // Options available at each location (bitmask)
     possibles: [[u16; NUM_COLS]; NUM_ROWS],
+
+    // Whether cell was set initially
+    set: [[bool; NUM_COLS]; NUM_ROWS],
 }
 
 impl Sudoku {
@@ -60,15 +67,8 @@ impl Sudoku {
         ret
     }
 
-    // Verify whether an individual cell is valid.
-    fn verify_cell(&self, row:usize, col:usize) -> bool {
-        let cell_val = self.board[row][col];
-
-        // Ignore if unset
-        if cell_val == 0 {
-            return true;
-        }
-
+    // Check whether a value would be valid for an individual cell.
+    fn check_cell(&self, row:usize, col:usize, cell_val:u8) -> bool {
         // Check row/col
         for i in 0..usize::from(NUM_MAX) {
             // Row
@@ -97,6 +97,18 @@ impl Sudoku {
         return true;
     }
 
+    // Verify whether an individual cell is valid.
+    fn verify_cell(&self, row:usize, col:usize) -> bool {
+        let cell_val = self.board[row][col];
+
+        // Ignore if unset
+        if cell_val == 0 {
+            return true;
+        }
+
+        self.check_cell(row, col, cell_val)
+    }
+
     // Verify whether the entire sudoku is valid.
     fn verify(&self) -> bool {
         for i in 0..usize::from(NUM_MAX) {
@@ -108,6 +120,20 @@ impl Sudoku {
         }
         return true;
     }
+
+    fn solve(&mut self) -> bool {
+        return true;
+    }
+
+    // Set the entire board to the values passed in.
+    pub fn set_full(&mut self, board_set:[[u8; NUM_COLS]; NUM_ROWS]) {
+        for (i, row) in board_set.iter().enumerate() {
+            for (j, val) in row.iter().enumerate() {
+                self.board[i][j] = *val;
+                self.set[i][j] = (*val != NUM_UNSET);
+            }
+        }
+    }
 }
 
 impl Default for Sudoku {
@@ -118,20 +144,28 @@ impl Default for Sudoku {
 
             // All options possible
             possibles: [[MASK_FULL; NUM_COLS]; NUM_ROWS],
+
+            // Unset
+            set: [[CELL_UNSET; NUM_COLS]; NUM_ROWS],          
         }
     }
 }
 
 
 fn main() {
-    // let mut cur = Sudoku { .. Default::default() };
-    // for row in &mut cur.board {
-    //     *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    // }
-
-    // cur.solve_brute_force();
-    // cur.display();
-    test_normal_disp();
+    let mut cur = Sudoku { ..Default::default() };
+    let board: [[u8; NUM_COLS]; NUM_ROWS] = 
+    [[5,3,0,0,7,0,0,0,0]
+    ,[6,0,0,1,9,5,0,0,0]
+    ,[0,9,8,0,0,0,0,6,0]
+    ,[8,0,0,0,6,0,0,0,3]
+    ,[4,0,0,8,0,3,0,0,1]
+    ,[7,0,0,0,2,0,0,0,6]
+    ,[0,6,0,0,0,0,2,8,0]
+    ,[0,0,0,4,1,9,0,0,5]
+    ,[0,0,0,0,8,0,0,7,9]];
+    cur.set_full(board);
+    cur.display();
 }
 
 // Expected output:
