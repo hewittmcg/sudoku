@@ -59,26 +59,44 @@ impl Sudoku {
     fn verify_cell(&self, row:usize, col:usize) -> bool {
         let cell_val = self.board[row][col];
 
+        // Ignore if unset
+        if cell_val == 0 {
+            return true;
+        }
+
         // Check row/col
         for i in 0..usize::from(NUM_MAX) {
             // Row
             if i != col && self.board[row][i] == cell_val {
                 return false;
             }
-            
+
             // Col
             if i != row && self.board[i][col] == cell_val {
                 return false;
             }
         }
 
-        // Check box
-        let box_row_offset = (row % 3) * 3;
-        let box_col_offset = (col % 3) * 3;
+        // Starting offsets of box
+        let box_row_offset = (row / 3) * 3;
+        let box_col_offset = (col / 3) * 3;
 
+        // Check box
         for i in usize::from(box_row_offset)..usize::from(box_row_offset+3) {
             for j in usize::from(box_col_offset)..usize::from(box_col_offset+3) {
                 if i != row && j != col && self.board[i][j] == cell_val {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Verify whether the entire sudoku is valid.
+    fn verify(&self) -> bool {
+        for i in 0..usize::from(NUM_MAX) {
+            for j in 0..usize::from(NUM_MAX) {
+                if !self.verify_cell(i, j) {
                     return false;
                 }
             }
@@ -105,33 +123,32 @@ fn main() {
 }
 
 // Expected output:
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // ---------------------
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // ---------------------
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    // 1 2 3 | 4 5 6 | 7 8 9
-    fn test_disp() {
-        let mut cur = Sudoku { ..Default::default() };
-        // Populate all rows with 1-9
-        for row in &mut cur.board {
-            *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        }
-        cur.display();
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+// ---------------------
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+// ---------------------
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+// 1 2 3 | 4 5 6 | 7 8 9
+fn test_disp() {
+    let mut cur = Sudoku { ..Default::default() };
+    // Populate all rows with 1-9
+    for row in &mut cur.board {
+        *row = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     }
+    cur.display();
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    // Expected output:
-    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
     #[test]
+    // Make sure get_possible returns all values by default
     fn test_possible() {
         let cur = Sudoku { ..Default::default() };
         let possible = cur.get_possible(0, 0);
@@ -140,7 +157,8 @@ mod tests {
     }
 
     #[test]
-    fn test_verify_basic() {
+    // Test verify_cell() to make sure it generally work sas expected
+    fn test_verify_cell_basic() {
         let mut cur = Sudoku { ..Default::default() };
         // Populate first row 1-9, remaining 2-9, 1 so verify should work
         cur.board[0] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -153,6 +171,49 @@ mod tests {
 
         // Second row first col should fail
         assert_eq!(false, cur.verify_cell(1, 0));
+    }
+
+    
+    #[test]
+    // Check the full verify function with a couple examples from online
+    fn test_verify_full() {
+        let mut cur = Sudoku { ..Default::default() };
+
+        // From https://leetcode.com/problems/valid-sudoku/
+        cur.board = [[5,3,0,0,7,0,0,0,0]
+        ,[6,0,0,1,9,5,0,0,0]
+        ,[0,9,8,0,0,0,0,6,0]
+        ,[8,0,0,0,6,0,0,0,3]
+        ,[4,0,0,8,0,3,0,0,1]
+        ,[7,0,0,0,2,0,0,0,6]
+        ,[0,6,0,0,0,0,2,8,0]
+        ,[0,0,0,4,1,9,0,0,5]
+        ,[0,0,0,0,8,0,0,7,9]];
+        assert_eq!(true, cur.verify());
+
+        // From https://leetcode.com/problems/valid-sudoku/
+        cur.board = [[8,3,0,0,7,0,0,0,0]
+        ,[6,0,0,1,9,5,0,0,0]
+        ,[0,9,8,0,0,0,0,6,0]
+        ,[8,0,0,0,6,0,0,0,3]
+        ,[4,0,0,8,0,3,0,0,1]
+        ,[7,0,0,0,2,0,0,0,6]
+        ,[0,6,0,0,0,0,2,8,0]
+        ,[0,0,0,4,1,9,0,0,5]
+        ,[0,0,0,0,8,0,0,7,9]];
+        assert_eq!(false, cur.verify());
+
+        // From https://www.geeksforgeeks.org/check-if-given-sudoku-board-configuration-is-valid-or-not/
+        cur.board = [[ 5, 3, 0, 0, 7, 0, 0,0,0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]];
+        assert_eq!(true, cur.verify());
     }
 }
 
