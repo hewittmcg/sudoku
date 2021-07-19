@@ -1,4 +1,4 @@
-use sudoku::{Sudoku, NUM_COLS, NUM_ROWS};
+use sudoku::sudoku::{Sudoku, NUM_COLS, NUM_ROWS};
 
 fn main() {
     // Test sudoku solving
