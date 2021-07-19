@@ -24,7 +24,7 @@ impl Sudoku {
     // Create a new sudoku with the board passed in.
     pub fn new(board: [[u8; NUM_COLS]; NUM_ROWS]) -> Self {
         Sudoku {
-            board: board,
+            board,
         }
     }
 
@@ -45,7 +45,7 @@ impl Sudoku {
             if PRINT_IDX.contains(&i) {
                 print!("{}", ROW_DIVIDER);
             }
-            println!("");
+            println!();
         }
     }
 
@@ -69,14 +69,14 @@ impl Sudoku {
         let box_col_offset = (col / 3) * 3;
 
         // Check box
-        for i in usize::from(box_row_offset)..usize::from(box_row_offset+3) {
-            for j in usize::from(box_col_offset)..usize::from(box_col_offset+3) {
+        for i in box_row_offset..box_row_offset+3 {
+            for j in box_col_offset..box_col_offset+3 {
                 if i != row && j != col && self.board[i][j] == cell_val {
                     return false;
                 }
             }
         }
-        return true;
+        true
     }
 
     // Verify whether an individual cell is valid.
@@ -100,7 +100,7 @@ impl Sudoku {
                 }
             }
         }
-        return true;
+        true
     }
 
     // Get the indexes of the first set value.  Returns usize::MAX for both if not found.
@@ -113,7 +113,7 @@ impl Sudoku {
             }
         } 
         
-        return [usize::MAX; 2];
+        [usize::MAX; 2]
     }
 
     // Solve the sudoku using backtracking.
@@ -137,7 +137,7 @@ impl Sudoku {
                 self.board[row][col] = NUM_UNSET;
             }
         }
-        return false;
+        false
     }
 
     // Set the entire board to the values passed in.

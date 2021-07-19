@@ -9,7 +9,7 @@ const SUDOKU_DIR: &str = "./src/sudoku_examples/sudokus";
 // const SOLN_DIR: &str = "./src/sudoku_examples/solutions";
 
 // Hacky conversion from u8 to char
-const CHAR_TO_U8_OFFSET: u8 = '0' as u8;
+const CHAR_TO_U8_OFFSET: u8 = b'0';
 
 // Parse sudokus from ./sudokus and return.
 pub fn parse() -> Vec<Sudoku> {
@@ -23,7 +23,7 @@ pub fn parse() -> Vec<Sudoku> {
 
         // Read numbers from file
         let contents = fs::read_to_string(file.path()).unwrap();
-        let nums = contents.split(" ").collect::<Vec<&str>>();
+        let nums = contents.split(' ').collect::<Vec<&str>>();
         
         let mut board: [[u8; NUM_COLS]; NUM_ROWS] = [[0; NUM_COLS]; NUM_ROWS]; // sudoku board
         
