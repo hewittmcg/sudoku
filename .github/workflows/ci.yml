@@ -10,6 +10,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          
       - name: lint
         uses: actions-rs/cargo@v1
         with:
@@ -19,9 +20,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          
+
       - name: test library
         uses: actions-rs/cargo@v1
         with: 
           command: test
+          args: -- --nocapture
         
