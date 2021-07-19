@@ -18,5 +18,5 @@ jobs:
       - name: test library
         uses: actions-rs/cargo@v1
         with: 
-          command: test
+          command: test -- --nocapture
         
